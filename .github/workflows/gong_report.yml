@@ -1,0 +1,32 @@
+name: Gong Weekly Coaching Report
+
+on:
+  schedule:
+    # Every Monday at 8:00 AM IST = 2:30 AM UTC
+    - cron: "30 2 * * 1"
+  workflow_dispatch:  # allows manual trigger from GitHub UI for testing
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Gong coaching report
+        env:
+          GONG_ACCESS_KEY:    ${{ secrets.GONG_ACCESS_KEY }}
+          GONG_SECRET:        ${{ secrets.GONG_SECRET }}
+          SLACK_WEBHOOK_URL:  ${{ secrets.SLACK_WEBHOOK_URL }}
+          GONG_MANAGER_ID:    ${{ secrets.GONG_MANAGER_ID }}
+          GONG_WORKSPACE_ID:  ${{ secrets.GONG_WORKSPACE_ID }}
+        run: python gong_weekly_report.py
