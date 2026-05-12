@@ -31,14 +31,14 @@ def gong_auth_header():
 
 def fetch_coaching_metrics(from_dt: str, to_dt: str) -> list[dict]:
     params = {
-        "managerId": MANAGER_ID,
+        "manager-id": MANAGER_ID,
         "from": from_dt,
         "to": to_dt,
     }
     if WORKSPACE_ID:
-        params["workspaceId"] = WORKSPACE_ID
+        params["workspace-id"] = WORKSPACE_ID
 
-    url = "https://api.gong.io/v2/coaching/managers/team/activity"
+    url = "https://api.gong.io/v2/coaching"
     resp = requests.get(url, headers=gong_auth_header(), params=params, timeout=30)
 
     if resp.status_code != 200:
@@ -47,8 +47,17 @@ def fetch_coaching_metrics(from_dt: str, to_dt: str) -> list[dict]:
         )
 
     data = resp.json()
-    # Response contains teamActivity list
-    return data.get("teamActivity", [])
+    print(f"Raw API response keys: {list(data.keys())}")
+    print(f"Full response: {json.dumps(data, indent=2)[:2000]}")  # first 2000 chars for debugging
+
+    # Try common response keys
+    return (
+        data.get("teamActivity")
+        or data.get("coachingData")
+        or data.get("managers")
+        or data.get("data")
+        or []
+    )
 
 # ── Slack formatting ──────────────────────────────────────────────────────────
 def build_slack_message(metrics: list[dict], from_dt: str, to_dt: str) -> dict:
