@@ -12,21 +12,20 @@ WORKSPACE_ID      = os.environ.get("GONG_WORKSPACE_ID", "")
 
 CALLS_TARGET = 10
 
-# ── Managers to report on (Gong ID → display name + Slack Member ID) ─────────
+# ── Managers to report on ─────────────────────────────────────────────────────
 TRACKED_MANAGERS = {
     "4648634965683652994": {"name": "Piyush Taori",           "slack_id": "U097RJ7PSGY"},
     "4948022090249743366": {"name": "Vigneshwaran Rajasekar", "slack_id": "U097RHRB108"},
     "3150948745332828084": {"name": "Mithun Dharanendraiah",  "slack_id": "U097RJ7V908"},
 }
 
-# People to CC at the bottom of every report
 CC_USERS = [
-    {"name": "Pankhuri Mishra",          "slack_id": "U0AFSEZ54JV"},
-    {"name": "Vignesh Balasubramanian",  "slack_id": "U097RHTV4E4"},
-    {"name": "Rukmangada Kandyala",      "slack_id": "U097RJ818EL"},
+    {"slack_id": "U0AFSEZ54JV"},
+    {"slack_id": "U097RHTV4E4"},
+    {"slack_id": "U097RJ818EL"},
 ]
 
-# ── Date range: last Mon–Sun ──────────────────────────────────────────────────
+# ── Date range ────────────────────────────────────────────────────────────────
 def get_last_week_range():
     today = datetime.now(timezone.utc)
     last_monday = today - timedelta(days=today.weekday() + 7)
@@ -61,9 +60,7 @@ def build_slack_message(coaching_data, from_dt, to_dt):
     hit_count = 0
 
     for gong_id, info in TRACKED_MANAGERS.items():
-        name     = info["name"]
         slack_id = info["slack_id"]
-        mention  = f" <@{slack_id}>"
 
         m = data_by_id.get(gong_id)
         if m:
@@ -76,50 +73,39 @@ def build_slack_message(coaching_data, from_dt, to_dt):
         else:
             listened = attended = feedback = comments = scored = 0
 
-        hit_target = scored >= CALLS_TARGET
-        if hit_target:
+        if scored >= CALLS_TARGET:
             hit_count += 1
-            badge = "✅"
-        else:
-            badge = "❌"
 
         rows.append(
-            f"{badge} *{name}*{mention}\n"
-            f"```"
-            f"Listened : {listened:>3}   Attended : {attended:>3}\n"
-            f"Feedback : {feedback:>3}   Comments : {comments:>3}\n"
-            f"Scored   : {scored:>3}  (target ≥{CALLS_TARGET})"
-            f"```"
+            f"-> <@{slack_id}>   "
+            f"Scored: *{scored}/{CALLS_TARGET}*   "
+            f"Listened: {listened}   Attended: {attended}   "
+            f"Feedback: {feedback}   Comments: {comments}"
         )
 
     total   = len(TRACKED_MANAGERS)
     summary = f"*{hit_count}/{total}* managers hit the ≥{CALLS_TARGET} calls scored target this week."
-    body    = "\n".join(rows)
+    divider = "─" * 42
+    body    = f"{divider}\n" + "\n".join(rows) + f"\n{divider}"
     cc_line = "  ".join(f"<@{u['slack_id']}>" for u in CC_USERS)
 
     return {
         "blocks": [
             {
                 "type": "header",
-                "text": {"type": "plain_text", "text": "📊 Weekly Gong Coaching Report", "emoji": True}
+                "text": {"type": "plain_text", "text": "Weekly Gong Coaching Report", "emoji": True}
             },
             {
                 "type": "section",
                 "text": {"type": "mrkdwn", "text": f"*Period:* {from_label} → {to_label}\n{summary}"}
             },
-            {"type": "divider"},
             {
                 "type": "section",
                 "text": {"type": "mrkdwn", "text": body}
             },
-            {"type": "divider"},
-            {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": f"*CC:* {cc_line}"}
-            },
             {
                 "type": "context",
-                "elements": [{"type": "mrkdwn", "text": "Scored = calls with scorecards filled by the manager"}]
+                "elements": [{"type": "mrkdwn", "text": f"CC: {cc_line}"}]
             }
         ]
     }
