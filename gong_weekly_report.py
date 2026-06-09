@@ -13,7 +13,6 @@ CALLS_TARGET = 10
 
 TRACKED_MANAGERS = {
     "4648634965683652994": {"name": "Piyush Taori",           "slack_id": "U097RJ7PSGY"},
-    "4948022090249743366": {"name": "Vigneshwaran Rajasekar", "slack_id": "U097RHRB108"},
     "3150948745332828084": {"name": "Mithun Dharanendraiah",  "slack_id": "U097RJ7V908"},
     "4624980002410098669": {"name": "Aditya Sridharan",       "slack_id": "U0B1CFUKF2A"},
 }
