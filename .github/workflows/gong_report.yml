@@ -1,8 +1,6 @@
 name: Gong Weekly Coaching Report
 
 on:
-  schedule:
-    - cron: "30 5 * * 1"  # Every Monday at 11:00 AM IST = 5:30 AM UTC
   workflow_dispatch:
 
 permissions:
