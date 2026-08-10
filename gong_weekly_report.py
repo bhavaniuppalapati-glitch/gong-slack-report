@@ -87,7 +87,8 @@ def build_slack_message(coaching_data, from_dt, to_dt):
             {"type": "header", "text": {"type": "plain_text", "text": "Weekly Gong Coaching Report", "emoji": True}},
             {"type": "section", "text": {"type": "mrkdwn", "text": f"*Period:* {from_label} → {to_label}\n{summary}"}},
             {"type": "section", "text": {"type": "mrkdwn", "text": body}},
-            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"CC: {cc_line}"}]}
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"CC: {cc_line}"}]},
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": "_Note: Numbers are pulled via the Gong API and may slightly differ from the Gong UI. We're investigating the discrepancy._"}]}
         ]
     }
 
