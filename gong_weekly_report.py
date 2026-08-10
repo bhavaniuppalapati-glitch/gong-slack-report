@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 from datetime import datetime, timedelta, timezone
 from base64 import b64encode
 
@@ -12,9 +13,9 @@ WORKSPACE_ID      = os.environ.get("GONG_WORKSPACE_ID", "")
 CALLS_TARGET = 10
 
 TRACKED_MANAGERS = {
-    "4648634965683652994": {"name": "Piyush Taori",           "slack_id": "U097RJ7PSGY"},
-    "3150948745332828084": {"name": "Mithun Dharanendraiah",  "slack_id": "U097RJ7V908"},
-    "4624980002410098669": {"name": "Aditya Sridharan",       "slack_id": "U0B1CFUKF2A"},
+    "4648634965683652994": {"name": "Piyush Taori",          "slack_id": "U097RJ7PSGY"},
+    "3150948745332828084": {"name": "Mithun Dharanendraiah", "slack_id": "U097RJ7V908"},
+    "4624980002410098669": {"name": "Aditya Sridharan",      "slack_id": "U0B1CFUKF2A"},
 }
 
 CC_USERS = [
@@ -100,6 +101,11 @@ def main():
     from_dt, to_dt = get_last_week_range()
     print(f"Fetching Gong coaching metrics: {from_dt} → {to_dt}")
     coaching_data = fetch_coaching_metrics(from_dt, to_dt)
+
+    # DEBUG: print raw API response to identify manager IDs
+    print("Raw coaching data:")
+    print(json.dumps(coaching_data, indent=2))
+
     print(f"Got {len(coaching_data)} manager records from Gong.")
     payload = build_slack_message(coaching_data, from_dt, to_dt)
     post_to_slack(payload)
